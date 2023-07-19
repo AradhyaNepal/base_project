@@ -1,0 +1,17 @@
+name: dio_base_by_a2
+description: A starting point for Dart libraries or applications.
+version: 1.0.0
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ^3.0.5
+
+# Add regular dependencies here.
+dependencies:
+  dio: ^5.3.0
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  lints: ^2.0.0
+  test: ^1.21.0
