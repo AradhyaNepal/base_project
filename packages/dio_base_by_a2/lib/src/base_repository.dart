@@ -1,10 +1,7 @@
 import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-//Todo: Error handling, custom APIException
-//Todo: Transformer vs responseManipulator
 class BaseRepository {
   final Dio _client;
   final RepositoryDetails _globalRepositoryDetails;
@@ -41,110 +38,138 @@ class BaseRepository {
   Future<T> get<T>(
     RepositoryInput input,
   ) async {
-    final repositoryDetails =
-        input.repositoryDetails ?? _globalRepositoryDetails;
-    final heading = await _getHeading(repositoryDetails.tokenNeeded);
-    final response = await _client
-        .get(
-          input.url,
-          data: input.data,
-          queryParameters: input.params,
-          cancelToken: input.cancelToken,
-          options: Options(
-            headers: heading,
-            responseType: input.responseType,
-          ),
-        )
-        .timeout(Duration(seconds: repositoryDetails.requestTimeout));
-    return repositoryDetails.responseManipulate(response.data) as T;
+    return _onErrorManipulator<T>(() async {
+      final repositoryDetails =
+          input.repositoryDetails ?? _globalRepositoryDetails;
+      final heading = await _getHeading(repositoryDetails.tokenNeeded);
+      final response = await _client
+          .get(
+            input.url,
+            data: input.data,
+            queryParameters: input.params,
+            cancelToken: input.cancelToken,
+            options: Options(
+              headers: heading,
+              responseType: input.responseType,
+            ),
+          )
+          .timeout(Duration(seconds: repositoryDetails.requestTimeout));
+      return repositoryDetails.responseManipulate(response.data) as T;
+    });
   }
 
   Future<T> post<T>(
     RepositoryInput input,
   ) async {
-    final repositoryDetails =
-        input.repositoryDetails ?? _globalRepositoryDetails;
-    final heading = await _getHeading(repositoryDetails.tokenNeeded);
-    final response = await _client
-        .post(
-          input.url,
-          data: input.data,
-          queryParameters: input.params,
-          cancelToken: input.cancelToken,
-          options: Options(
-            headers: heading,
-            responseType: input.responseType,
-          ),
-        )
-        .timeout(Duration(seconds: repositoryDetails.requestTimeout));
-    return repositoryDetails.responseManipulate(response.data) as T;
+    return _onErrorManipulator<T>(() async {
+      final repositoryDetails =
+          input.repositoryDetails ?? _globalRepositoryDetails;
+      final heading = await _getHeading(repositoryDetails.tokenNeeded);
+      final response = await _client
+          .post(
+            input.url,
+            data: input.data,
+            queryParameters: input.params,
+            cancelToken: input.cancelToken,
+            options: Options(
+              headers: heading,
+              responseType: input.responseType,
+            ),
+          )
+          .timeout(Duration(seconds: repositoryDetails.requestTimeout));
+      return repositoryDetails.responseManipulate(response.data) as T;
+    });
   }
 
   Future<T> delete<T>(
     RepositoryInput input,
   ) async {
-    final repositoryDetails =
-        input.repositoryDetails ?? _globalRepositoryDetails;
-    final heading = await _getHeading(repositoryDetails.tokenNeeded);
-    final response = await _client
-        .delete(
-          input.url,
-          data: input.data,
-          queryParameters: input.params,
-          cancelToken: input.cancelToken,
-          options: Options(
-            headers: heading,
-            responseType: input.responseType,
-          ),
-        )
-        .timeout(Duration(seconds: repositoryDetails.requestTimeout));
-    return repositoryDetails.responseManipulate(response.data) as T;
+    return _onErrorManipulator<T>(() async {
+      final repositoryDetails =
+          input.repositoryDetails ?? _globalRepositoryDetails;
+      final heading = await _getHeading(repositoryDetails.tokenNeeded);
+      final response = await _client
+          .delete(
+            input.url,
+            data: input.data,
+            queryParameters: input.params,
+            cancelToken: input.cancelToken,
+            options: Options(
+              headers: heading,
+              responseType: input.responseType,
+            ),
+          )
+          .timeout(Duration(seconds: repositoryDetails.requestTimeout));
+      return repositoryDetails.responseManipulate(response.data) as T;
+    });
   }
 
   Future<T> put<T>(
     RepositoryInput input,
   ) async {
-    final repositoryDetails =
-        input.repositoryDetails ?? _globalRepositoryDetails;
-    final heading = await _getHeading(repositoryDetails.tokenNeeded);
-    final response = await _client
-        .put(
-          input.url,
-          data: input.data,
-          queryParameters: input.params,
-          cancelToken: input.cancelToken,
-          options: Options(
-            headers: heading,
-            responseType: input.responseType,
-          ),
-        )
-        .timeout(Duration(seconds: repositoryDetails.requestTimeout));
-    return repositoryDetails.responseManipulate(response.data) as T;
+    return _onErrorManipulator<T>(() async {
+      final repositoryDetails =
+          input.repositoryDetails ?? _globalRepositoryDetails;
+      final heading = await _getHeading(repositoryDetails.tokenNeeded);
+      final response = await _client
+          .put(
+            input.url,
+            data: input.data,
+            queryParameters: input.params,
+            cancelToken: input.cancelToken,
+            options: Options(
+              headers: heading,
+              responseType: input.responseType,
+            ),
+          )
+          .timeout(Duration(seconds: repositoryDetails.requestTimeout));
+      return repositoryDetails.responseManipulate(response.data) as T;
+    });
   }
 
   Future<T> patch<T>(
     RepositoryInput input,
   ) async {
-    final repositoryDetails =
-        input.repositoryDetails ?? _globalRepositoryDetails;
-    final heading = await _getHeading(repositoryDetails.tokenNeeded);
-    final response = await _client
-        .patch(
-          input.url,
-          data: input.data,
-          queryParameters: input.params,
-          cancelToken: input.cancelToken,
-          options: Options(
-            headers: heading,
-            responseType: input.responseType,
-          ),
-        )
-        .timeout(Duration(seconds: repositoryDetails.requestTimeout));
-    return repositoryDetails.responseManipulate(response.data) as T;
+    return _onErrorManipulator<T>(() async {
+      final repositoryDetails =
+          input.repositoryDetails ?? _globalRepositoryDetails;
+      final heading = await _getHeading(repositoryDetails.tokenNeeded);
+      final response = await _client
+          .patch(
+            input.url,
+            data: input.data,
+            queryParameters: input.params,
+            cancelToken: input.cancelToken,
+            options: Options(
+              headers: heading,
+              responseType: input.responseType,
+            ),
+          )
+          .timeout(Duration(seconds: repositoryDetails.requestTimeout));
+      return repositoryDetails.responseManipulate(response.data) as T;
+    });
   }
 
-  Future<T> download<T>() async {
-    return throw UnimplementedError();
+  Future<dynamic> download(RepositoryInput input, String savePath) async {
+    return _onErrorManipulator(() async {
+      final repositoryDetails =
+          input.repositoryDetails ?? _globalRepositoryDetails;
+      final heading = await _getHeading(repositoryDetails.tokenNeeded);
+      final response = await _client
+          .download(
+            input.url,
+            savePath,
+            data: input.data,
+            queryParameters: input.params,
+            cancelToken: input.cancelToken,
+            options: Options(
+              headers: heading,
+              responseType: input.responseType,
+            ),
+          )
+          .timeout(Duration(seconds: repositoryDetails.requestTimeout));
+      return response.data;
+    });
   }
 
   Future<Map<String, String>> _getHeading(bool needToken) async {
@@ -155,9 +180,73 @@ class BaseRepository {
       if (needToken) 'Authorization': 'Bearer $token',
     };
   }
+
+  ///Throws [APIException] on error
+  Future<T> _onErrorManipulator<T>(ErrorGuardReturn<T> run) async {
+    try {
+      return run();
+    } on DioException catch (error, stack) {
+      log(error.toString());
+      log(stack.toString());
+      String genericMessage =
+          "Dear customer, we are unable to complete the process. Please try again later.";
+      //Todo: Below code combines multiple error list to one value, manipulate below code as per your API requirement
+      final errorResponse = error.response?.data?["errors"];
+      if (errorResponse != null) {
+        final errorList = (errorResponse as Map<String, dynamic>).values;
+        if (errorList.isEmpty) {
+          throw APIException(
+            genericMessage,
+            error.response?.statusCode ?? -1,
+          );
+        }
+        final listCombinedMessage =
+            errorList.fold("", (previousValue, element) {
+          if (previousValue.isEmpty) {
+            return element;
+          } else {
+            return "$previousValue\n\n$element";
+          }
+        });
+        error.toString();
+        throw APIException(
+          listCombinedMessage,
+          error.response?.statusCode ?? -1,
+        );
+      }
+      throw APIException(
+        genericMessage,
+        error.response?.statusCode ?? -1,
+      );
+    } catch (error, stack) {
+      log(error.toString());
+      log(stack.toString());
+      throw APIException(
+        "Something went wrong with the Application. Please contact the developers.",
+        -1,
+        error: error,
+        stackTrace: stack,
+      );
+    }
+  }
+}
+
+class APIException implements Exception {
+  String errorMessage;
+  int statusCode;
+  Object? error;
+  StackTrace? stackTrace;
+
+  APIException(
+    this.errorMessage,
+    this.statusCode, {
+    this.error,
+    this.stackTrace,
+  });
 }
 
 typedef ResponseManipulator = dynamic Function(dynamic);
+typedef ErrorGuardReturn<T> = Future<T> Function();
 
 abstract class RepositoryInput {
   String url;
