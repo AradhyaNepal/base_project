@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-//Todo: Cancelling a request
 class BaseRepository {
   final Dio _client;
   final RepositoryDetails _globalRepositoryDetails;
@@ -38,11 +37,25 @@ class BaseRepository {
   Future<T> get<T>(
     String url, {
     Map? header,
-    Map? params,
+    Map<String, dynamic>? params,
     RepositoryDetails? repositoryDetails,
+    CancelToken? cancelToken,
+    ResponseType? responseType,
   }) async {
     repositoryDetails ??= _globalRepositoryDetails;
-    return throw UnimplementedError();
+    final heading = await _getHeading(repositoryDetails.tokenNeeded);
+    final response = await _client
+        .get(
+          url,
+          queryParameters: params,
+          cancelToken: cancelToken,
+          options: Options(
+            headers: heading,
+            responseType: responseType,
+          ),
+        )
+        .timeout(Duration(seconds: repositoryDetails.requestTimeout));
+    return repositoryDetails.responseManipulate(response.data);
   }
 
   Future<T> post<T>() async {
@@ -59,6 +72,15 @@ class BaseRepository {
 
   Future<T> patch<T>() async {
     return throw UnimplementedError();
+  }
+
+  Future<Map<String, String>> _getHeading(bool needToken) async {
+    String token = ""; //Todo: Implement token,
+    return {
+      'Content-Type': 'application/json',
+      'Accept': '*/*',
+      if (needToken) 'Authorization': 'Bearer $token',
+    };
   }
 }
 
@@ -139,7 +161,8 @@ class TokenExpiredInterceptor extends Interceptor {
   //BECAUSE YOU MIGHT GET ANNOYED BY BELOW MESSAGE KEEP POPPING ON YOUR LOG
   void _notImplementedWarning() {
     if (!kReleaseMode) {
-      print("Warning: Handling Token Expiry Scenario Is Not Handled Yet, Your Api might Crash If Token Get Expired");
+      print(
+          "Warning: Handling Token Expiry Scenario Is Not Handled Yet, Your Api might Crash If Token Get Expired");
     }
   }
 }
