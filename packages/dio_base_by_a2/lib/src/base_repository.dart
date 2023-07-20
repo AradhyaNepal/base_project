@@ -1,6 +1,10 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+//Todo: Error handling, custom APIException
+//Todo: Transformer vs responseManipulator
 class BaseRepository {
   final Dio _client;
   final RepositoryDetails _globalRepositoryDetails;
@@ -35,42 +39,111 @@ class BaseRepository {
   }
 
   Future<T> get<T>(
-    String url, {
-    Map? header,
-    Map<String, dynamic>? params,
-    RepositoryDetails? repositoryDetails,
-    CancelToken? cancelToken,
-    ResponseType? responseType,
-  }) async {
-    repositoryDetails ??= _globalRepositoryDetails;
+    RepositoryInput input,
+  ) async {
+    final repositoryDetails =
+        input.repositoryDetails ?? _globalRepositoryDetails;
     final heading = await _getHeading(repositoryDetails.tokenNeeded);
     final response = await _client
         .get(
-          url,
-          queryParameters: params,
-          cancelToken: cancelToken,
+          input.url,
+          data: input.data,
+          queryParameters: input.params,
+          cancelToken: input.cancelToken,
           options: Options(
             headers: heading,
-            responseType: responseType,
+            responseType: input.responseType,
           ),
         )
         .timeout(Duration(seconds: repositoryDetails.requestTimeout));
-    return repositoryDetails.responseManipulate(response.data);
+    return repositoryDetails.responseManipulate(response.data) as T;
   }
 
-  Future<T> post<T>() async {
-    return throw UnimplementedError();
+  Future<T> post<T>(
+    RepositoryInput input,
+  ) async {
+    final repositoryDetails =
+        input.repositoryDetails ?? _globalRepositoryDetails;
+    final heading = await _getHeading(repositoryDetails.tokenNeeded);
+    final response = await _client
+        .post(
+          input.url,
+          data: input.data,
+          queryParameters: input.params,
+          cancelToken: input.cancelToken,
+          options: Options(
+            headers: heading,
+            responseType: input.responseType,
+          ),
+        )
+        .timeout(Duration(seconds: repositoryDetails.requestTimeout));
+    return repositoryDetails.responseManipulate(response.data) as T;
   }
 
-  Future<T> delete<T>() async {
-    return throw UnimplementedError();
+  Future<T> delete<T>(
+    RepositoryInput input,
+  ) async {
+    final repositoryDetails =
+        input.repositoryDetails ?? _globalRepositoryDetails;
+    final heading = await _getHeading(repositoryDetails.tokenNeeded);
+    final response = await _client
+        .delete(
+          input.url,
+          data: input.data,
+          queryParameters: input.params,
+          cancelToken: input.cancelToken,
+          options: Options(
+            headers: heading,
+            responseType: input.responseType,
+          ),
+        )
+        .timeout(Duration(seconds: repositoryDetails.requestTimeout));
+    return repositoryDetails.responseManipulate(response.data) as T;
   }
 
-  Future<T> put<T>() async {
-    return throw UnimplementedError();
+  Future<T> put<T>(
+    RepositoryInput input,
+  ) async {
+    final repositoryDetails =
+        input.repositoryDetails ?? _globalRepositoryDetails;
+    final heading = await _getHeading(repositoryDetails.tokenNeeded);
+    final response = await _client
+        .put(
+          input.url,
+          data: input.data,
+          queryParameters: input.params,
+          cancelToken: input.cancelToken,
+          options: Options(
+            headers: heading,
+            responseType: input.responseType,
+          ),
+        )
+        .timeout(Duration(seconds: repositoryDetails.requestTimeout));
+    return repositoryDetails.responseManipulate(response.data) as T;
   }
 
-  Future<T> patch<T>() async {
+  Future<T> patch<T>(
+    RepositoryInput input,
+  ) async {
+    final repositoryDetails =
+        input.repositoryDetails ?? _globalRepositoryDetails;
+    final heading = await _getHeading(repositoryDetails.tokenNeeded);
+    final response = await _client
+        .patch(
+          input.url,
+          data: input.data,
+          queryParameters: input.params,
+          cancelToken: input.cancelToken,
+          options: Options(
+            headers: heading,
+            responseType: input.responseType,
+          ),
+        )
+        .timeout(Duration(seconds: repositoryDetails.requestTimeout));
+    return repositoryDetails.responseManipulate(response.data) as T;
+  }
+
+  Future<T> download<T>() async {
     return throw UnimplementedError();
   }
 
@@ -85,6 +158,26 @@ class BaseRepository {
 }
 
 typedef ResponseManipulator = dynamic Function(dynamic);
+
+abstract class RepositoryInput {
+  String url;
+  Object? data;
+  Map? header;
+  Map<String, dynamic>? params;
+  RepositoryDetails? repositoryDetails;
+  CancelToken? cancelToken;
+  ResponseType? responseType;
+
+  RepositoryInput(
+    this.url, {
+    this.data,
+    this.header,
+    this.params,
+    this.repositoryDetails,
+    this.cancelToken,
+    this.responseType,
+  });
+}
 
 class RepositoryDetails {
   final bool _tokenNeeded;
@@ -134,7 +227,13 @@ class RepositoryDetails {
         _responseManipulate = responseManipulate;
 
   static dynamic defaultResponseManipulator(dynamic map) {
-    return (map as Map)["data"];
+    try {
+      return (map as Map)["data"];
+    } catch (e, s) {
+      log(e.toString());
+      log(s.toString());
+      return map;
+    }
   }
 
   static dynamic noneResponseManipulator(dynamic map) => map;
