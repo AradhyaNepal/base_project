@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-typedef ResponseManipulator = String Function(Map);
-
 class BaseRepository {
   final bool _isTokenBasedRepo;
 
@@ -20,6 +18,7 @@ class BaseRepository {
   final Dio _client;
 
   final ResponseManipulator _responseManipulate;
+
   ///In most case backend return a generic response,
   ///like:
   ///
@@ -35,7 +34,7 @@ class BaseRepository {
   ///
   /// This method is used to manipulate those response on every return so that
   /// for every method below, we will only get the value inside the data.
-  ResponseManipulator get responseManipulate=>_responseManipulate;
+  ResponseManipulator get responseManipulate => _responseManipulate;
 
   ///In order to do the testing, you can pass Mocked Dio on [dio].
   ///
@@ -62,20 +61,19 @@ class BaseRepository {
     }
   }
 
-  static String _defaultResponseManipulator(Map map) {
-    return map["data"];
+  static dynamic _defaultResponseManipulator(dynamic map) {
+    return (map as Map)["data"];
   }
 
-  ///On not passing [haveToken], [isTokenBasedRepo]  value will be used
+  static dynamic noneResponseManipulator(dynamic map)=>map;
+
+
   Future<T> get<T>(
     String url, {
     Map? header,
     Map? params,
-    bool? haveToken,
-    int? timeoutSeconds,
+    RepositoryDetails? overrideRepo,
   }) async {
-    haveToken ??= isTokenBasedRepo;
-    timeoutSeconds ??= repoTimeout;
     return throw UnimplementedError();
   }
 
@@ -94,4 +92,21 @@ class BaseRepository {
   Future<T> patch<T>() async {
     return throw UnimplementedError();
   }
+}
+
+typedef ResponseManipulator = dynamic Function(dynamic);
+
+class RepositoryDetails {
+  final bool? haveToken;
+  final int? timeoutSeconds;
+  final ResponseManipulator? responseManipulator;
+
+  ///Can be used to override [haveToken], [timeoutSeconds] and [responseManipulator] of the repository
+  ///
+  /// On not passing [RepositoryDetails], or any of its inner variable, [BaseRepository] value will be used
+  RepositoryDetails({
+    this.haveToken,
+    this.timeoutSeconds,
+    this.responseManipulator,
+  });
 }
