@@ -1,8 +1,9 @@
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
-library;
 
+library dio_base_by_a2;
+
+export 'src/api_exception.dart';
 export 'src/base_repository.dart';
-
-// TODO: Export any libraries intended for clients of this package.
+export 'src/repository_details.dart';
+export 'src/repository_input.dart';
+export 'src/token_expiry_interceptor.dart';
+export 'src/typedef.dart';
