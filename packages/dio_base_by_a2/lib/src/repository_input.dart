@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 
 import 'repository_details.dart';
 
-class RepositoryInput {
+class RequestInput {
   String url;
   Object? data;
   Map? header;
@@ -12,7 +12,7 @@ class RepositoryInput {
   CancelToken? cancelToken;
   ResponseType? responseType;
 
-  RepositoryInput(
+  RequestInput(
       this.url, {
         this.data,
         this.header,

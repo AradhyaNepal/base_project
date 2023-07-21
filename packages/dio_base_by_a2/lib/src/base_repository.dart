@@ -42,7 +42,7 @@ class BaseRepository {
   }
 
   Future<T> get<T>(
-    RepositoryInput input,
+    RequestInput input,
   ) async {
     return _onErrorManipulator<T>(() async {
       final repositoryDetails =
@@ -65,7 +65,7 @@ class BaseRepository {
   }
 
   Future<T> post<T>(
-    RepositoryInput input,
+    RequestInput input,
   ) async {
     return _onErrorManipulator<T>(() async {
       final repositoryDetails =
@@ -88,7 +88,7 @@ class BaseRepository {
   }
 
   Future<T> delete<T>(
-    RepositoryInput input,
+    RequestInput input,
   ) async {
     return _onErrorManipulator<T>(() async {
       final repositoryDetails =
@@ -111,7 +111,7 @@ class BaseRepository {
   }
 
   Future<T> put<T>(
-    RepositoryInput input,
+    RequestInput input,
   ) async {
     return _onErrorManipulator<T>(() async {
       final repositoryDetails =
@@ -134,7 +134,7 @@ class BaseRepository {
   }
 
   Future<T> patch<T>(
-    RepositoryInput input,
+    RequestInput input,
   ) async {
     return _onErrorManipulator<T>(() async {
       final repositoryDetails =
@@ -156,7 +156,7 @@ class BaseRepository {
     });
   }
 
-  Future<dynamic> download(RepositoryInput input, String savePath) async {
+  Future<dynamic> download(RequestInput input, String savePath) async {
     return _onErrorManipulator(() async {
       final repositoryDetails =
           input.repositoryDetails ?? _globalRepositoryDetails;
