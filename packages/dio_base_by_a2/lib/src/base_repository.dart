@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import 'api_exception.dart';
 import 'repository_details.dart';
-import 'repository_input.dart';
+import 'request_input.dart';
 import 'token_expiry_interceptor.dart';
 import 'typedef.dart';
 
