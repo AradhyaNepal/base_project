@@ -1,6 +1,4 @@
-
-
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 sealed class GenericState<T> {
   ///State is either [SuccessState]
@@ -73,18 +71,19 @@ sealed class GenericState<T> {
     };
   }
 
-  SuccessState<T>? get successStateOrNull{
+  SuccessState<T>? get successStateOrNull {
     final state = this;
-    if(state case SuccessState()){
+    if (state case SuccessState()) {
       return state;
-    } else{
+    } else {
       return null;
     }
   }
+
   /// Returns currentPage of [SuccessState].
   /// In any other state, returns 0
   int get currentPage {
-    return successStateOrNull?.serverPageIndex??0;
+    return successStateOrNull?.serverPageIndex ?? 0;
   }
 
   /// For [SuccessState] returns nextPage count.
@@ -94,23 +93,36 @@ sealed class GenericState<T> {
   /// For [SuccessState] returns whether have next page.
   /// Else for any other state, returns false
   bool get haveNextPage {
-    return successStateOrNull?.serverHaveNext??false;
+    return successStateOrNull?.serverHaveNext ?? false;
   }
 
   /// For [SuccessState] returns whether pagination loading.
   /// Else for any other state, returns false
-  bool get isPaginationLoading{
-    return successStateOrNull?.serverPaginationLoading??false;
+  bool get isPaginationLoading {
+    return successStateOrNull?.serverPaginationLoading ?? false;
   }
 
   /// In order to do pagination:
   /// * There must be next page, which only happens in [SuccessState]
   /// * Pagination must not be already loading
   /// * The current scroll must exceed the range from where the pagination should start
-  bool canDoPagination(ScrollController scrollController){
-    if(!haveNextPage)return false;
-    if(isPaginationLoading)return false;
-    return scrollController.position.pixels>=scrollController.position.maxScrollExtent*0.9;
+  bool canDoPagination(ScrollController scrollController) {
+    if (!haveNextPage) return false;
+    if (isPaginationLoading) return false;
+    return scrollController.position.pixels >=
+        scrollController.position.maxScrollExtent * 0.9;
+  }
+
+  SuccessState<T> setupNextPage({
+    required T data,
+    required bool haveNext,
+  }) {
+    return SuccessState<T>.pagination(
+      data,
+      serverPageIndex: nextPage,
+      serverHaveNext: haveNext,
+      serverPaginationLoading: false,
+    );
   }
 }
 
@@ -132,6 +144,7 @@ class LoadingState<T> extends GenericState<T> {
 
 class SuccessState<T> extends GenericState<T> {
   T data;
+
   //Note: Server is used so that developer don't get confused when they are editing GenericState's helper methods
   int serverPageIndex;
   bool serverHaveNext;
@@ -148,25 +161,4 @@ class SuccessState<T> extends GenericState<T> {
         required this.serverHaveNext,
         this.serverPaginationLoading = false,
       });
-
-  SuccessState setupNextPage({
-    required T data,
-    required bool haveNext,
-  }) {
-    return SuccessState.pagination(
-      data ?? this.data,
-      serverPageIndex: serverPageIndex++,
-      serverHaveNext: haveNext,
-      serverPaginationLoading: false,
-    );
-  }
-
-  SuccessState setPaginationLoading() {
-    return SuccessState.pagination(
-      this.data,
-      serverPageIndex: this.serverPageIndex,
-      serverHaveNext: this.serverHaveNext,
-      serverPaginationLoading: true,
-    );
-  }
 }
